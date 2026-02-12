@@ -12,7 +12,7 @@ pipeline {
 
         stage('Checkout Code') {
             steps {
-                git 'https://github.com/YOUR_USERNAME/lambda-fullstack.git'
+                git 'https://github.com/nikhil-stackly/lambda-fullstack.git'
             }
         }
 
