@@ -12,22 +12,14 @@ pipeline {
 
         stage('Checkout Code') {
             steps {
-                git branch: 'main', url: 'https://github.com/nikhil-stackly/lambda-fullstack.git'
-            }
-        }
-
-        stage('Install AWS CLI') {
-            steps {
-                sh '''
-                sudo apt update
-                sudo apt install awscli zip -y
-                '''
+                checkout scm
             }
         }
 
         stage('Package Lambda') {
             steps {
                 sh '''
+                echo "Packaging Lambda..."
                 rm -f lambda.zip
                 zip lambda.zip lambda_function.py
                 '''
@@ -37,9 +29,11 @@ pipeline {
         stage('Deploy Lambda') {
             steps {
                 sh '''
+                echo "Updating Lambda..."
                 aws lambda update-function-code \
                 --function-name $FUNCTION_NAME \
-                --zip-file fileb://lambda.zip
+                --zip-file fileb://lambda.zip \
+                --region $AWS_DEFAULT_REGION
                 '''
             }
         }
@@ -47,11 +41,14 @@ pipeline {
         stage('Deploy API Gateway') {
             steps {
                 sh '''
+                echo "Deploying API Gateway..."
                 aws apigateway create-deployment \
                 --rest-api-id $API_ID \
-                --stage-name prod
+                --stage-name prod \
+                --region $AWS_DEFAULT_REGION
                 '''
             }
         }
     }
 }
+
